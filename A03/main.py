@@ -6,6 +6,15 @@ Assignment 3
 I pledge my honor that I have abided by the Stevens Honor System - Chloe Quinto
 """
 
+"""
+To Do 
+1. Complete OutputVideoCount
+2. Complete OutputLikesCount
+3. Complete OutputDislikesCount
+2. Complete function writeToCSV
+
+"""
+
 from apiclient.discovery import build 
 import csv 
 
@@ -16,8 +25,17 @@ API_VERSION = "v3"
 YouTubeObject = build(API_NAME, API_VERSION, developerKey = API_KEY)
 
 
-
 def OutputVideoCount(resultVidCount):
+    '''
+    Description: 
+        Function sorts and prints out title, videocount and id onto the console based on the highest view count. 
+
+    Parameters: 
+        resultsVidCount: A dictionary with keys as the videoCount and values as the title, videoCount and ID 
+
+    Returns: 
+        str: returns str to be printed  
+    '''
     print("Before: \n")
     print(resultVidCount)
     print("After: \n")
@@ -26,10 +44,43 @@ def OutputVideoCount(resultVidCount):
     # for key, value in sorted(resultVidCount.items()):
     #     print("%s:" % resultVidCount[key])
 
+def OutputLikesCount(resultLikes):
+    '''
+    Description: 
+        Function sorts and prints out title, videocount and id onto the console based on the highest likes 
+
+    Parameters: 
+        resultLikes: A dictionary with keys as the likes and values as the title, videoCount and ID 
+
+    Returns: 
+        str: returns str to be printed  
+    '''
+    return None 
+
+def OutputDislikesCount(resultDislikes): 
+    '''
+    Description: 
+        Function sorts and prints out title, videocount and id onto the console based on the highest dislikes 
+
+    Parameters: 
+        resultLikes: A dictionary with keys as the dislikes and values as the title, videoCount and ID 
+
+    Returns: 
+        str: returns str to be printed  
+    '''
+    return None
+
 def ranking(results, numResults): 
     '''
-    Functions takes the result from the API call  
-    Returns title, videoId, viewCount, likes, dislikes 
+    Description: 
+        Function takes in results and number of results and extracts title, videocount, id, likes, dislikes etc. 
+
+    Parameters: 
+        results: JSON response from API query 
+        numResults: number of queries the user wants 
+
+    Returns: 
+        dict: returns dictionary of partitioned data based on videoCount, likes, and dislikes 
     '''
     printVidCount, printLikes, printDislikes = {}, {}, {}
     print("--------viewsRanking---------")
@@ -73,7 +124,7 @@ def ranking(results, numResults):
 
 
 
-def createCSV(results):
+def writeToCSV(results):
     header = []
     for key, value in results.items(): 
         header.append(key)
@@ -83,8 +134,15 @@ def createCSV(results):
 
 def searchYoutube(term, max_results): 
     '''
-    Executes YouTube API call given the search term "term" and the number of results "max_results"
-    Returns response body 
+    Description: 
+        Function takes in results and number of results and makes an API call. 
+
+    Parameters: 
+        term: query from the user 
+        max_results: number of results the user wants 
+
+    Returns: 
+        JSON Response: returns json response from API call 
     '''
     response = YouTubeObject.search().list(q = term, part="id, snippet", maxResults = max_results).execute()
     print("Search Term: " + term)
@@ -99,10 +157,6 @@ if __name__ == "__main__":
     numResults = input("How many results would you like?\n")
     print("-----------Searching-----------")
     resultQuery = searchYoutube(query, numResults)
-    createCSV(resultQuery)
+    writeToCSV(resultQuery)
     ranking(resultQuery, numResults)
 
-    """
-    To Do 
-    1. List the rank (1 to 5), the title, id, and views for top 5 videos with the highest views 
-    """
