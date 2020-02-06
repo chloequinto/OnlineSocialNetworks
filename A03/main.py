@@ -36,13 +36,14 @@ def OutputVideoCount(resultVidCount):
     Returns: 
         str: returns str to be printed  
     '''
-    print("Before: \n")
-    print(resultVidCount)
-    print("After: \n")
-    resultVidCount = sorted(resultVidCount.keys())
-    print(resultVidCount[key])
-    # for key, value in sorted(resultVidCount.items()):
-    #     print("%s:" % resultVidCount[key])
+    print("--------- Ranking View Count -------------")
+    viewCount = sorted(resultVidCount.items(), key=lambda x: int(x[0]), reverse=True)
+    rank = 1 
+    for key, value in viewCount: 
+        print("Rank: " + str(rank) +  " Title:  " +str(value.get("title")) + " Video ID: "  + str(value.get("videoId")) + " ViewCount: " + str(key))
+        rank+=1 
+    print("\n")
+    return None
 
 def OutputLikesCount(resultLikes):
     '''
@@ -53,9 +54,17 @@ def OutputLikesCount(resultLikes):
         resultLikes: A dictionary with keys as the likes and values as the title, videoCount and ID 
 
     Returns: 
-        str: returns str to be printed  
+        None
     '''
-    return None 
+    print("--------- Ranking Like Count -------------")
+    likeCount = sorted(resultLikes.items(), key=lambda x: int(x[0]), reverse=True)
+    rank = 1 
+    for key, value in likeCount: 
+        percent = round((value.get("percentLikes") * 100), 5)
+        print("Rank: " + str(rank) +  " Title:  " +str(value.get("title")) + " Video ID: "  + str(value.get("videoId")) + " Percent Likes: " + str(percent))
+        rank+=1 
+    print("\n")
+    return None
 
 def OutputDislikesCount(resultDislikes): 
     '''
@@ -66,8 +75,16 @@ def OutputDislikesCount(resultDislikes):
         resultLikes: A dictionary with keys as the dislikes and values as the title, videoCount and ID 
 
     Returns: 
-        str: returns str to be printed  
+        None
     '''
+    print("--------- Ranking Dislikes Count -------------")
+    dislikeCount = sorted(resultDislikes.items(), key=lambda x: int(x[0]), reverse=True)
+    rank = 1 
+    for key, value in dislikeCount: 
+        percent = round((value.get("percentDislikes") * 100), 5)
+        print("Rank: " + str(rank) +  " Title:  " +str(value.get("title")) + "  Video ID:  "  + str(value.get("videoId")) + "  Percent Dislikes:  " + str(percent))
+        rank+=1 
+    print("\n")
     return None
 
 def ranking(results, numResults): 
@@ -83,11 +100,7 @@ def ranking(results, numResults):
         dict: returns dictionary of partitioned data based on videoCount, likes, and dislikes 
     '''
     printVidCount, printLikes, printDislikes = {}, {}, {}
-    print("--------viewsRanking---------")
-
     items = results["items"] # A list of activities, or events, that match the request criteria.
-    print("LengthOfResults: " + str(numResults))
-    print('-----')
     for i in range(len(items)): 
         videoNum = items[i]
 
@@ -95,33 +108,24 @@ def ranking(results, numResults):
         videoId = videoNum["id"]["videoId"]
 
         videoResponse = YouTubeObject.videos().list(id=videoId, part="statistics").execute()
+
         videoItems = videoResponse["items"][0]
         viewCount = videoItems["statistics"]["viewCount"]
         likes = videoItems["statistics"]["likeCount"]
         dislikes = videoItems["statistics"]["dislikeCount"]
+        percentLikes = (int(likes)/int(viewCount))
+        percentDislikes = (int(dislikes)/int(viewCount))
 
-        print("Title: " + str(title))
-        print("VideoId: " + str(videoId))
-        print("ViewCount: " + str(viewCount))
-        print("Likes: " + str(likes))
-        print("Dislikes: " + str(dislikes))
-        percentLikes = int(likes)/int(viewCount)
-        percentDislikes = int(dislikes)/int(viewCount)
 
-        print('--------')
-
-        printVidCount[viewCount] = {title, videoId, viewCount}
-        printLikes[likes] = {title, videoId, percentLikes}
-        printDislikes[dislikes] = {title, videoId, percentDislikes}
-    print("--------- Ranking Videos -------------")
-    print(printVidCount)
+        printVidCount[viewCount] = {"title": title, "videoId" : videoId, "viewCount ": viewCount}
+        printLikes[likes] = {"title": title, "videoId": videoId, "percentLikes":percentLikes}
+        printDislikes[dislikes] = {"title": title, "videoId":videoId, "percentDislikes":percentDislikes}
+    
     OutputVideoCount(printVidCount)
-    # print('----hue------')
-    # print(printLikes)
-    # print('----hue------')
-    # print(printDislikes)
-    # print('----hue------')
+    OutputLikesCount(printLikes)
+    OutputDislikesCount(printDislikes)
 
+    return None
 
 
 def writeToCSV(results):
@@ -149,13 +153,16 @@ def searchYoutube(term, max_results):
     print("Search Max: " + max_results)
     print("Results:\n" + str(response))
 
-    print("-----------End of Result-----------")
+    print("-----------End of Searching-----------\n")
     return response 
 
 if __name__ == "__main__":
+
     query = input("What would you like to search?\n")
     numResults = input("How many results would you like?\n")
+
     print("-----------Searching-----------")
+
     resultQuery = searchYoutube(query, numResults)
     writeToCSV(resultQuery)
     ranking(resultQuery, numResults)
