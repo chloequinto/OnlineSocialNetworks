@@ -2,10 +2,26 @@ import csv
 import networkx as nx 
 
 class CSVdata: 
-    def __init__(self, edges, selfLoops, TotEdges): 
+    def __init__(self, edges, selfLoops, totEdges, trustEdges, distrustEdges, prob_p, prob_n, triangles): 
         self.edges = edges
         self.selfLoops = selfLoops
-        self.TotEdges = TotEdges
+        self.totEdges = totEdges
+        self.trustEdges = trustEdges
+        self.distrustEdges = distrustEdges
+        self.prob_p  = prob_p 
+        self.prob_n = prob_n
+        self.triangles = triangles 
+
+    def show(self): 
+        print("Edges in network: " + str(self.edges))
+        print("Self-Loops: "+ str(self.selfLoops ))
+        print("Edges used - TotEdges: " + str(self.totEdges))
+        print("Trust Edges: " +  str(self.trustEdges) + " |  probability p: " + str(self.prob_p))
+        print("Distrust Edges: " +  str(self.distrustEdges) + " |  probability 1-p: " + str(self.prob_n))
+        print("Triangles: " + str(self.triangles))
+    
+
+
 
 def findSelfLoops(G):
     nodes_in_selfloops = []
@@ -24,13 +40,12 @@ def openAndPrint(fileName):
             line = row.split(",") # split into an array 
             G.add_edge(line[0], line[1], weight = line[2])
 
-    CSVdata.edges = len(G.edges())
+    edges = len(G.edges())
 
-    CSVdata.selfLoops = findSelfLoops(G)
+    selfLoops = findSelfLoops(G)
 
-    CSVdata.TotEdges = CSVdata.edges - CSVdata.selfLoops
+    totEdges = edges - selfLoops
 
-    # val = [for i in G.edges.data]
 
     pos = 0 
     neg = 0
@@ -40,16 +55,19 @@ def openAndPrint(fileName):
         else: 
             neg += 1 
 
+    trustEdges = pos
+    distrustEdges = neg 
+    prob_p = pos / totEdges
+    prob_n = 1 - prob_p
 
-    CSVdata.trustEdges = pos
-    CSVdata.distrustEdges = neg 
-
-def printResults(): 
-    print("Edges in network: ", CSVdata.edges)
-    print("Self-Loops: ", CSVdata.selfLoops )
-    print("Edges used - TotEdges: ", CSVdata.TotEdges)
-    print("Trust Edges: ",  CSVdata.trustEdges)
-    print("Distrust Edges: ",  CSVdata.distrustEdges)
+    # Need to find triangles where cliques > 3 
+    triangles = 0     
+    cliq_list = list(nx.clique.enumerate_all_cliques(G))
+    traingle_list = [ x for x in cliq_list if len(x)==3 ]
+    triangles = len(traingle_list)
+  
+    myData = CSVdata(edges, selfLoops, totEdges, pos, neg, round(prob_p,2), round(prob_n,2), triangles )
+    myData.show()
 
 if __name__ == "__main__":
 
@@ -60,5 +78,4 @@ if __name__ == "__main__":
     # fileName = input("Enter the name of the file: \n")
     fileName = "epinions96.csv"
     openAndPrint(fileName)
-    printResults()
     print("=====================================")
