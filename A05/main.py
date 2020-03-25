@@ -1,15 +1,30 @@
+'''
+Chloe Quinto 
+CS 581 A05 
+Objective: Parse through CSV files to calculate key attributes such as triads and their expected and actual distrubtion
+How to run:
+    In terminal, run `python3 main.py`
+
+'''
+
 import csv
 import networkx as nx 
 from tabulate import tabulate
 from itertools import combinations as comb
 import pandas as pd 
+import time
+
 
 class CSVdata: 
+
     def __init__(self, edges, selfLoops, totEdges, trustEdges, distrustEdges, prob_p, prob_n, 
                 triad, col_format, aTTT_num, aTTD_num, aTDD_num, aDDD_num, 
                 EpTTT, EpTTD, EpTDD, EpDDD, 
                 aTTT_percent,aTTD_percent, aTDD_percent, aDDD_percent, 
                 eTTT_num, eTTD_num, eTDD_num, eDDD_num): 
+        '''
+            Each CSV has these following attributes 
+        '''
         self.edges = edges
         self.selfLoops = selfLoops
         self.totEdges = totEdges
@@ -37,6 +52,9 @@ class CSVdata:
         self.eDDD_num = eDDD_num
 
     def show(self): 
+        '''
+            Prints what we see in the terminal 
+        '''
         print("\nEdges in network: " + str(self.edges))
         print("Self-Loops: "+ str(self.selfLoops ))
         print("Edges used - TotEdges: " + str(self.totEdges))
@@ -65,6 +83,11 @@ class CSVdata:
                         ], headers = ["Type", "percent", "number"]))
 
 def typesOfTrust(triangle):
+    '''
+        Function: Classifies a specific triangle with a trust 
+        For example, given (('5', '20'), '1'), (('5', '50'), '1'), (('20', '50'), '1')
+        We see that all the weights are 1, then this is classified as TTT
+    '''
     cat = {
         ("1","1","1") : "TTT",
         ("-1","1","1") : "TTD",
@@ -75,6 +98,9 @@ def typesOfTrust(triangle):
 
 
 def findSelfLoops(G):
+    '''
+        Function: finds self loops in the graph
+    '''
     nodes_in_selfloops = []
     for i, v in G.edges(): 
         if i == v: 
@@ -82,13 +108,21 @@ def findSelfLoops(G):
     return len(nodes_in_selfloops)
 
 
-def cleanAndFind(fileName): 
+def cleanAndFind(fileName):
+    '''
+        Function: reads csv file and calculates the attributes necessary 
+    '''
+    start = time.time() 
     G = nx.Graph()
-    with open(fileName) as csvFile: 
-        for row in csvFile: 
-            row = row.replace("\n", "") # get rid of new line breaks 
-            line = row.split(",") # split into an array 
-            G.add_edge(line[0], line[1], weight = line[2])
+    try: 
+        with open(fileName) as csvFile: 
+            for row in csvFile: 
+                row = row.replace("\n", "") # get rid of new line breaks 
+                line = row.split(",") # split into an array 
+                G.add_edge(line[0], line[1], weight = line[2])
+    except: 
+        print("[ERROR] File does not exist. Ending script")
+        return
 
     edges = len(G.edges())
 
@@ -129,15 +163,15 @@ def cleanAndFind(fileName):
 
 
     # Let's put it all one one pandas table 
-    col_format = tuple(zip(*tri_weights))
+    col = tuple(zip(*tri_weights))
     table = pd.DataFrame({
-        "trustCategory": col_format[3],
-        "edgeOne": tuple(zip(*col_format[0]))[0],
-        "trustOne": tuple(zip(*col_format[0]))[1],
-        "edgeTwo": tuple(zip(*col_format[1]))[0],
-        "trustTwo": tuple(zip(*col_format[1]))[1],
-        "edgeThree": tuple(zip(*col_format[2]))[0],
-        "TrustThree": tuple(zip(*col_format[2]))[1]
+        "trustCategory": col[3],
+        "edgeOne": tuple(zip(*col[0]))[0],
+        "trustOne": tuple(zip(*col[0]))[1],
+        "edgeTwo": tuple(zip(*col[1]))[0],
+        "trustTwo": tuple(zip(*col[1]))[1],
+        "edgeThree": tuple(zip(*col[2]))[0],
+        "TrustThree": tuple(zip(*col[2]))[1]
     })
 
     triad_table = table.sort_values(['trustCategory'],ascending=False).reset_index(drop=True)
@@ -166,7 +200,8 @@ def cleanAndFind(fileName):
     eTDD_num = round(eTDD_percent * aTotal_num,1)
     eDDD_num = round(eDDD_percent * aTotal_num,1)
 
-    myData = CSVdata(edges, selfLoops, totEdges, pos, neg, round(prob_p,2), round(prob_n,2), triad, col_format, 
+
+    myData = CSVdata(edges, selfLoops, totEdges, pos, neg, round(prob_p,2), round(prob_n,2), triad, col, 
                                         aTTT_num, aTTD_num, aTDD_num, aDDD_num, 
                                         round(eTTT_percent*100,1), round(eTTD_percent*100, 1), round(eTDD_percent*100, 1), round(eDDD_percent*100,1), 
                                         aTTT_percent,aTTD_percent, aTDD_percent, aDDD_percent, 
@@ -177,14 +212,12 @@ def cleanAndFind(fileName):
         print("\n\n")
         print(triad_table)
         print("\n")
+    print("Total Time for Program to Run: ", round(time.time() - start, 2))
+
 
 if __name__ == "__main__":
-
     print("=====================================")
-    '''
-    Row looks like: 221363,261079,1
-    '''
-    # fileName = input("Enter the name of the file: \n")
-    fileName = "epinions96.csv"
+    fileName = input("Enter the name of the file: \n")
+    print("Attempting to read: " + fileName)
     cleanAndFind(fileName)
     print("=====================================")
