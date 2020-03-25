@@ -44,7 +44,7 @@ class CSVdata:
         print("Distrust Edges: " +  str(self.distrustEdges) + " |  probability 1-p: " + str(self.prob_n))
         print("Triangles: " + str(self.triad))
 
-        print("\n\nExpected Distribution")
+        print("\nExpected Distribution")
         print(tabulate([
                         ["TTT", self.EpTTT, self.eTTT_num ], 
                         ["TTD", self.EpTTD,self.eTTD_num ], 
@@ -82,7 +82,7 @@ def findSelfLoops(G):
     return len(nodes_in_selfloops)
 
 
-def openAndPrint(fileName): 
+def cleanAndFind(fileName): 
     G = nx.Graph()
     with open(fileName) as csvFile: 
         for row in csvFile: 
@@ -128,26 +128,26 @@ def openAndPrint(fileName):
         tri_weights[i].append(typesOfTrust(tri_weights[i]))
 
 
-
+    # Let's put it all one one pandas table 
     col_format = tuple(zip(*tri_weights))
     table = pd.DataFrame({
-        "trust_category": col_format[3],
-        "edge_1": tuple(zip(*col_format[0]))[0],
-        "trust_1": tuple(zip(*col_format[0]))[1],
-        "edge_2": tuple(zip(*col_format[1]))[0],
-        "trust_2": tuple(zip(*col_format[1]))[1],
-        "edge_3": tuple(zip(*col_format[2]))[0],
-        "trust_3": tuple(zip(*col_format[2]))[1]
+        "trustCategory": col_format[3],
+        "edgeOne": tuple(zip(*col_format[0]))[0],
+        "trustOne": tuple(zip(*col_format[0]))[1],
+        "edgeTwo": tuple(zip(*col_format[1]))[0],
+        "trustTwo": tuple(zip(*col_format[1]))[1],
+        "edgeThree": tuple(zip(*col_format[2]))[0],
+        "TrustThree": tuple(zip(*col_format[2]))[1]
     })
 
-    triad_table = table.sort_values(['trust_category'],ascending=False).reset_index(drop=True)
-    triad_table.trust_category.unique()
+    triad_table = table.sort_values(['trustCategory'],ascending=False).reset_index(drop=True)
+    triad_table.trustCategory.unique()
 
     # Actual Distribution
-    aTTT_num = len(triad_table[triad_table['trust_category']=='TTT'])
-    aTTD_num = len(triad_table[triad_table['trust_category']=='TTD'])
-    aTDD_num = len(triad_table[triad_table['trust_category']=='TDD'])
-    aDDD_num = len(triad_table[triad_table['trust_category']=='DDD'])
+    aTTT_num = len(triad_table[triad_table['trustCategory']=='TTT'])
+    aTTD_num = len(triad_table[triad_table['trustCategory']=='TTD'])
+    aTDD_num = len(triad_table[triad_table['trustCategory']=='TDD'])
+    aDDD_num = len(triad_table[triad_table['trustCategory']=='DDD'])
     aTotal_num = aTTT_num + aTTD_num + aTDD_num + aDDD_num
 
     aTTT_percent = round((aTTT_num/aTotal_num)*100, 0)
@@ -166,21 +166,17 @@ def openAndPrint(fileName):
     eTDD_num = round(eTDD_percent * aTotal_num,1)
     eDDD_num = round(eDDD_percent * aTotal_num,1)
 
-
-
-    n_triads = len(triad_table)
-    type_1 = len(triad_table[triad_table['trust_category'] == 'TTT'])
-    type_2 = len(triad_table[triad_table['trust_category'] == 'TTD'])
-    type_3 = len(triad_table[triad_table['trust_category'] == 'TDD'])
-    type_4 = len(triad_table[triad_table['trust_category'] == 'DDD'])
-
-
     myData = CSVdata(edges, selfLoops, totEdges, pos, neg, round(prob_p,2), round(prob_n,2), triad, col_format, 
                                         aTTT_num, aTTD_num, aTDD_num, aDDD_num, 
                                         round(eTTT_percent*100,1), round(eTTD_percent*100, 1), round(eTDD_percent*100, 1), round(eDDD_percent*100,1), 
                                         aTTT_percent,aTTD_percent, aTDD_percent, aDDD_percent, 
                                         eTTT_num, eTTD_num, eTDD_num, eDDD_num)
     myData.show()
+
+    with pd.option_context('display.max_columns', None):
+        print("\n\n")
+        print(triad_table)
+        print("\n")
 
 if __name__ == "__main__":
 
@@ -190,5 +186,5 @@ if __name__ == "__main__":
     '''
     # fileName = input("Enter the name of the file: \n")
     fileName = "epinions96.csv"
-    openAndPrint(fileName)
+    cleanAndFind(fileName)
     print("=====================================")
