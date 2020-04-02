@@ -68,7 +68,7 @@ def getUser(user_screen_name):
         num_followers =  twitter_user.followers_count
 
         print("User Name:", user_name)
-        print("Screen Name:", screen_name)
+        print("User Screen Name:", screen_name)
         print("User ID:", user_id)
         print("User Description:", user_description)
         print("Number of Followers:", num_followers)
@@ -105,7 +105,7 @@ def getFollowers():
             if count == 10: 
                 break 
             count += 1
-            print(users.screen_name)
+            print("Follower " + str(count) + ": " + users.screen_name)
     except: 
         print("[ERROR] Could not get followers")
 
