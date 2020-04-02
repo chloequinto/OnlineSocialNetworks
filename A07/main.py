@@ -1,17 +1,22 @@
 '''
 Chloe Quinto 
 
+HW 7 - Using the Twitterr API to access Twitter Data 
+
+Description: This python script is intended to use Twitter Data for data search/retrieval and processing/analysis. It utilizes Tweepy API 
 To Run: type into the terminal `python3 main.py`
 
 Dependencies: 
     - Install Tweepy 
+    - Twitter Account 
+    - Twitter Developer Account 
 
 TODO 
 [X] Prompt the user for a Twitter User Screen Name.  If the user enters STOP, end the program with an appropriate message and stop.
 [X] Use the Twitter Screen Name to retrieve the following from the Twitter User Account and display them on the console with appropriate labels. 
 [X] Print the text of the Twitter User Account's most recent tweet, with appropriate label.
-[] Print the screen names of thefirst 10followers of the Twitter User Account, with appropriate label. 
-[] Prompt the user for the next Twitter User Screen Name, unless they enter STOP.
+[X] Print the screen names of thefirst 10followers of the Twitter User Account, with appropriate label. 
+[X] Prompt the user for the next Twitter User Screen Name, unless they enter STOP.
 '''
 
 
@@ -96,7 +101,7 @@ def getFollowers():
     print("Screen Names of First 10 Followers of " + screen_name)
     try: 
         count = 0
-        for users in tweepy.Cursor(API.followers, id = screen_name, count = 10 ).items(): 
+        for users in tweepy.Cursor(API.followers, id = screen_name).items(): 
             if count == 10: 
                 break 
             count += 1
@@ -106,10 +111,7 @@ def getFollowers():
 
     print("============================\n")
 
-    # print(followers_list)
-
-
-
+    return None
 
 
 if __name__ == "__main__":
@@ -123,6 +125,7 @@ if __name__ == "__main__":
         user_screen_name = input("What Twitter User Account do you want to analyze? Type \"STOP\" to end program\n")
 
     if user_screen_name == "STOP": 
+        print("Sorry to see you go! Come back again!")
         exit()
     
     print("============================")
