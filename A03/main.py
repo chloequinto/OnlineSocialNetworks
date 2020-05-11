@@ -16,7 +16,7 @@ To run  - Navigate to folder, open terminal/bash, and then type `python3 main.py
 from apiclient.discovery import build 
 import csv 
 
-API_KEY = "AIzaSyAAgQB9UpJXqvdYfHAiyW6nfz94FVSP5tQ"
+API_KEY = ""
 API_NAME = "youtube"
 API_VERSION = "v3"
 
